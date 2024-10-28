@@ -85,7 +85,7 @@ Feature: Clockify
     When execute method GET
     Then the status code should be 200
 
-  @projectUpdateName @ejemplo
+  @projectUpdateName
   Scenario: Editar nombre de un proyecto.
     Given call Clockify-Api.feature@findProject
     And endpoint /v1/workspaces/{{idworkspace}}/projects/{{idproject}}
