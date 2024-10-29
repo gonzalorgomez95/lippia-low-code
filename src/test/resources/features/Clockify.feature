@@ -1,4 +1,5 @@
-Feature: Clockify
+@clockify @TP8
+Feature: Clockify endpoints
 
   Background:
     Given base url $(env.base_url_clockify)
@@ -35,6 +36,7 @@ Feature: Clockify
     And endpoint /v1/workspaces/{{idworkspace}}/projects/{{idproject}}
     When execute method GET
     Then the status code should be 200
+    * define idproject = $.id
 
   @projectUpdateName
   Scenario: Editar nombre de un proyecto.
@@ -45,17 +47,26 @@ Feature: Clockify
     When execute method PUT
     Then the status code should be 200
 
-  @deleteProject @nofunciona
-  Scenario: Borrar un proyecto en un workspace.
+  @projectArchived
+  Scenario: Archivar un proyecto.
     Given call Clockify.feature@findProject
+    And endpoint /v1/workspaces/{{idworkspace}}/projects/{{idproject}}
+    And header Content-Type = application/json
+    And body jsons/bodies/archiveProject.json
+    When execute method PUT
+    Then the status code should be 200
+
+  @deleteProject
+  Scenario: Borrar un proyecto en un workspace.
+    Given call Clockify.feature@projectArchived
     Given endpoint /v1/workspaces/{{idworkspace}}/projects/{{idproject}}
     When execute method DELETE
     Then the status code should be 200
 
-  @deletedClient @norpobado
-  Scenario: Validar borrado proyecto.
-    Given call Clockify.feature@deleteProject
+  @archivedClient
+  Scenario: Validar archivado de un proyecto.
+    Given call Clockify.feature@projectArchived
     And endpoint /v1/workspaces/{{idworkspace}}/projects/{{idproject}}
     When execute method GET
-    Then the status code should be 400
-    And response should be $.message = Project doesn't belong to Workspace
+    Then the status code should be 200
+    And response should be $.archived = true
